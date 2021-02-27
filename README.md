@@ -21,7 +21,7 @@ This is super early version, so we're open to adjusting based on thoughts and fe
 
 ## How it Works
 
-Our first proof of concept contract is at (contracts/BusStation.sol)
+Our proof of concept contract is at [contracts/BusStation.sol](contracts/BusStation.sol)
 
 Our first destination will be to the gas station to fill up.  It's not sexy, there's nobody in swimsuits yet.  
 
@@ -29,7 +29,7 @@ Nobody will get anything for taking the frst bus trip, except a receipt that pro
 
 If the bus successfully makes its frst trip, we'll have a proof of concept.  We'll use the funds to set up infrastructure to build the bus station.  This means...
 
-!(poolparty.jpg)
+![Pool Party!](poolparty.jpg)
 
 ## License
 
