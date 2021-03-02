@@ -47,7 +47,8 @@ contract BusStation{
         emit BusDeparts(_ticketTotal);
     }
 
-    function withdraw() external hasATicket{
+    function withdraw() external {
+        require(_seats[msg.sender] > 0, "Address does not have a ticket.");
         uint256 amount = _seats[msg.sender];
         _seats[msg.sender] = 0;
         payable(msg.sender).transfer(amount);
@@ -65,11 +66,6 @@ contract BusStation{
     modifier isReadyToRide() {
         require(_endOfTimelock <= block.timestamp, "Function is timelocked");
         require(_ticketTotal >= _minAmountToLeave, "Not enough money to leave.");
-        _;
-    }
-
-    modifier hasATicket() {
-        require(_seats[msg.sender] > 0, "Address does not have a ticket.");
         _;
     }
 }
