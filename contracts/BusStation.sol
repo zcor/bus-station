@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
-
-contract BusStation is Ownable {
+contract BusStation{
     
     /* ==== Variables ===== */
     
@@ -61,15 +59,5 @@ contract BusStation is Ownable {
         require(_endOfTimelock <= block.timestamp, "Function is timelocked");
         require(_ticketTotal >= _minAmountToLeave, "Not enough money to leave.");
         _;
-    }
-
-   /* === Locking ==== */
-
-    function lockFunction() external onlyOwner {
-        _endOfTimelock = block.timestamp + _timelockDuration;
-    }
-  
-    function unlockFunction() external onlyOwner {
-        _endOfTimelock = 0;
     }
 }
