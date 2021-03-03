@@ -7,3 +7,4 @@ def test_trigger_bus_ride_locked(accounts, lockedBusStation):
 def test_trigger_bus_ride_unlocked_no_tickets(accounts, unlockedBusStation):
     with brownie.reverts("Not enough money to leave."):
         unlockedBusStation.triggerBusRide()
+        
