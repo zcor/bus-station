@@ -8,11 +8,10 @@ contract BusStation{
     mapping(address => uint256) public _seats;
     bool public _hasBusLeft;
     uint256 public _ticketTotal;
-    uint256 _minTicketValue = 0;
-    uint256 _minWeiToLeave;
-    address payable _destination;
+    uint256 public _minTicketValue = 0;
+    uint256 public _minWeiToLeave;
+    address payable private _destination;
     
-    uint256 private constant _daysMultiplier = 60 * 60 * 24; // seconds in a day
     uint256 public _timelockDuration;
     uint256 public _endOfTimelock;
     
@@ -24,28 +23,28 @@ contract BusStation{
     constructor(
         address payable destination,
         uint256 minWeiToLeave,
-        uint256 timelockDays
+        uint256 timelockSeconds
     ) {
         super;
         _hasBusLeft = false;
         _minWeiToLeave = minWeiToLeave;
         _destination = destination;
-        _timelockDuration = timelockDays * _daysMultiplier;
+        _timelockDuration = timelockSeconds;
         _endOfTimelock = block.timestamp + _timelockDuration;
     }
 
     /* ==== Functions ===== */
-    function buyBusTicket() external payable canPurchaseTicket{
+    function buyBusTicket() external payable canPurchaseTicket {
         _seats[msg.sender] += msg.value;
         _ticketTotal += msg.value;
         emit TicketPurchased(msg.sender, msg.value);
     }  
 
-    function triggerBusRide() external isReadyToRide{
+    function triggerBusRide() external isReadyToRide {
         uint256 amount = _ticketTotal;
         _ticketTotal = 0;
-        _destination.transfer(amount); 
         _hasBusLeft = true;
+        _destination.transfer(amount); 
         emit BusDeparts(amount);
     }
 
@@ -53,15 +52,15 @@ contract BusStation{
         require(_seats[msg.sender] > 0, "Address does not have a ticket.");
         uint256 amount = _seats[msg.sender];
         _seats[msg.sender] = 0;
-        payable(msg.sender).transfer(amount);
         _ticketTotal -= amount;
+        payable(msg.sender).transfer(amount);
     }
    
     /* === Modifiers === */
    
     modifier canPurchaseTicket() {
         require(_hasBusLeft == false, "The bus already left.");
-        require(msg.value > _minTicketValue, "Need to pay something for the ticket.");
+        require(msg.value > _minTicketValue, "Need to pay more for ticket.");
         _;
     }
     
