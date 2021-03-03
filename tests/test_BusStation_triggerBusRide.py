@@ -19,7 +19,7 @@ def test_trigger_bus_ride_success(accounts, unlockedBusStation):
     # act
     unlockedBusStation.buyBusTicket({'from': accounts[1], 'amount': riderOneAmount})
     unlockedBusStation.buyBusTicket({'from': accounts[2], 'amount': riderTwoAmount})
-    unlockedBusStation.triggerBusRide()
+    tx = unlockedBusStation.triggerBusRide()
 
     # assert
     assert unlockedBusStation._hasBusLeft() == True
@@ -27,4 +27,5 @@ def test_trigger_bus_ride_success(accounts, unlockedBusStation):
     assert accounts[0].balance() == startingDestinationBalance + riderOneAmount + riderTwoAmount
     assert accounts[1].balance() == startingRiderOneBalance - riderOneAmount
     assert accounts[2].balance() == startingRiderTwoBalance - riderTwoAmount
+    assert tx.events['BusDeparts']['_value'] > 0
     

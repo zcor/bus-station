@@ -4,8 +4,10 @@ from brownie.test import given, strategy
 
 @given(amount=strategy('uint', max_value=10**19, min_value=1))
 def test_buy_bus_ticket_success(accounts, unlockedBusStation, amount):
-    unlockedBusStation.buyBusTicket({'from': accounts[3], 'amount': amount})
+    tx = unlockedBusStation.buyBusTicket({'from': accounts[3], 'amount': amount})
     assert unlockedBusStation._ticketTotal() == amount
+    assert tx.events['TicketPurchased'][0]['_from'] == accounts[3]
+    assert tx.events['TicketPurchased'][0]['_value'] == amount
 
 def test_buy_bus_ticket_no_money_sent(accounts, unlockedBusStation):
     with brownie.reverts("Need to pay something for the ticket."):
