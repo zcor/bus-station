@@ -63,7 +63,6 @@ contract BusStation {
         uint256 timelockSeconds,
         uint256 maxTicketValue
     ) {
-        super;
         _hasBusLeft = false;
         _minWeiToLeave = minWeiToLeave;
         _maxTicketValue = maxTicketValue;
