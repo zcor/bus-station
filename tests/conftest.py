@@ -10,8 +10,12 @@ def isolate(fn_isolation):
 
 @pytest.fixture(scope="module")
 def lockedBusStation(BusStation, accounts):
-    return BusStation.deploy(accounts[0], 2, 4, {'from': accounts[1]})
+    etherInWei = 10**18
+    return BusStation.deploy(accounts[0], etherInWei, 4, {'from': accounts[1]})
 
 @pytest.fixture(scope="module")
-def unlockedBusStation(BusStation, accounts):
-    return BusStation.deploy(accounts[0], 2, 0, {'from': accounts[1]})
+def unlockedBusStation(BusStation, accounts, chain):
+    etherInWei = 10**18
+    sleep_time = 5 * 60 * 60 * 24
+    chain.sleep(sleep_time)
+    return BusStation.deploy(accounts[0], etherInWei, 0, {'from': accounts[1]})

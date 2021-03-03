@@ -9,7 +9,7 @@ contract BusStation{
     bool public _hasBusLeft;
     uint256 public _ticketTotal;
     uint256 _minTicketValue = 0;
-    uint256 _minAmountToLeave;
+    uint256 _minWeiToLeave;
     address payable _destination;
     
     uint256 private constant _daysMultiplier = 60 * 60 * 24; // seconds in a day
@@ -23,12 +23,12 @@ contract BusStation{
     /* ==== Constructor ===== */
     constructor(
         address payable destination,
-        uint256 minAmountToLeave,
+        uint256 minWeiToLeave,
         uint256 timelockDays
     ) {
         super;
         _hasBusLeft = false;
-        _minAmountToLeave = minAmountToLeave;
+        _minWeiToLeave = minWeiToLeave;
         _destination = destination;
         _timelockDuration = timelockDays * _daysMultiplier;
         _endOfTimelock = block.timestamp + _timelockDuration;
@@ -42,9 +42,11 @@ contract BusStation{
     }  
 
     function triggerBusRide() external isReadyToRide{
-        _destination.transfer(_ticketTotal); 
+        uint256 amount = _ticketTotal;
+        _ticketTotal = 0;
+        _destination.transfer(amount); 
         _hasBusLeft = true;
-        emit BusDeparts(_ticketTotal);
+        emit BusDeparts(amount);
     }
 
     function withdraw() external {
@@ -58,14 +60,14 @@ contract BusStation{
     /* === Modifiers === */
    
     modifier canPurchaseTicket() {
-        require(_hasBusLeft == false, "The bus already left!");
+        require(_hasBusLeft == false, "The bus already left.");
         require(msg.value > _minTicketValue, "Need to pay something for the ticket.");
         _;
     }
     
     modifier isReadyToRide() {
-        require(_endOfTimelock <= block.timestamp, "Function is timelocked");
-        require(_ticketTotal >= _minAmountToLeave, "Not enough money to leave.");
+        require(_endOfTimelock <= block.timestamp, "Function is timelocked.");
+        require(_ticketTotal >= _minWeiToLeave, "Not enough wei to leave.");
         _;
     }
 }
