@@ -35,19 +35,27 @@ contract BusStation{
     }
 
     /* ==== Functions ===== */
-    function buyBusTicket() public payable canPurchaseTicket{
+    function buyBusTicket() external payable canPurchaseTicket{
         _seats[msg.sender] += msg.value;
         _ticketTotal += msg.value;
         emit TicketPurchased(msg.sender, msg.value);
     }  
 
-   function triggerBusRide() external isReadyToRide{
+    function triggerBusRide() external isReadyToRide{
         _destination.transfer(_ticketTotal); 
         _hasBusLeft = true;
         emit BusDeparts(_ticketTotal);
-   }
+    }
+
+    function withdraw() external {
+        require(_seats[msg.sender] > 0, "Address does not have a ticket.");
+        uint256 amount = _seats[msg.sender];
+        _seats[msg.sender] = 0;
+        payable(msg.sender).transfer(amount);
+        _ticketTotal -= amount;
+    }
    
-   /* === Modifiers === */
+    /* === Modifiers === */
    
     modifier canPurchaseTicket() {
         require(_hasBusLeft == false, "The bus already left!");
