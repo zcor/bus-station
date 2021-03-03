@@ -76,7 +76,12 @@ contract BusStation {
 
     // Purchase a bus ticket if eligible
     function buyBusTicket() external payable canPurchaseTicket {
-        _seats[msg.sender] += msg.value;
+        uint256 seatvalue = _seats[msg.sender];
+        require(
+            msg.value + seatvalue < _maxTicketValue,
+            "Cannot exceed max ticket value."
+        );
+        _seats[msg.sender] = msg.value + seatvalue;
         _ticketTotal += msg.value;
         emit TicketPurchased(msg.sender, msg.value);
     }
@@ -112,10 +117,6 @@ contract BusStation {
     modifier canPurchaseTicket() {
         require(_hasBusLeft == false, "The bus already left.");
         require(msg.value > _minTicketValue, "Need to pay more for ticket.");
-        require(
-            msg.value + _seats[msg.sender] < _maxTicketValue,
-            "Cannot exceed max ticket value."
-        );
         _;
     }
 
