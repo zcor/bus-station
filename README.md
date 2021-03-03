@@ -1,6 +1,8 @@
 # Bus Station
 We're going to the pool party!
- 
+
+![Pool Party!](poolparty.jpg)
+
 ## Vision
 
 Awesome Ethereum dApps like Curve are like a virtual Pool Party... full of beautiful people having fun.  But you can't go.
@@ -28,8 +30,6 @@ Our first destination will be to the gas station to fill up.  It's not sexy, the
 Nobody will get anything for taking the frst bus trip, except a receipt that proves they were on the first party bus.  It's not much, but at least you can prove you had a fun time.
 
 If the bus successfully makes its frst trip, we'll have a proof of concept.  We'll use the funds to set up infrastructure to build the bus station.  This means...
-
-![Pool Party!](poolparty.jpg)
 
 ## License
 
