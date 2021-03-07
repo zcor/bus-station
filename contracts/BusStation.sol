@@ -80,7 +80,7 @@ contract BusStation {
     function buyBusTicket() external payable canPurchaseTicket {
         uint256 seatvalue = _seats[msg.sender];
         require(
-            msg.value + seatvalue < _maxTicketValue,
+            msg.value + seatvalue <= _maxTicketValue,
             "Cannot exceed max ticket value."
         );
         _seats[msg.sender] = msg.value + seatvalue;
