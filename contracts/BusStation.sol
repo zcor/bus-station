@@ -39,7 +39,7 @@ contract BusStation {
 
     mapping(address => uint256) public _seats;
     bool public _hasBusLeft;
-    uint256 public _ticketTotal;
+    uint256 public _ticketTotalValue;
     uint256 public _minTicketValue = 0;
     uint256 public _maxTicketValue;
     uint256 public _minWeiToLeave;
@@ -50,9 +50,12 @@ contract BusStation {
 
     /* ==== Events ===== */
 
-    event TicketPurchased(address indexed _from, uint256 _value);
+    /* 
+    Removed for not being necessary and inflating gas costs
+    event TicketPurchased(address indexed _from, uint256 _value); 
     event Withdrawal(address indexed _from, uint256 _value);
     event BusDeparts(uint256 _value);
+    */
 
     /* ==== Constructor ===== */
 
@@ -81,17 +84,17 @@ contract BusStation {
             "Cannot exceed max ticket value."
         );
         _seats[msg.sender] = msg.value + seatvalue;
-        _ticketTotal += msg.value;
-        emit TicketPurchased(msg.sender, msg.value);
+        _ticketTotalValue += msg.value;
+        /* emit TicketPurchased(msg.sender, msg.value); */
     }
 
     // If bus is eligible, anybody can trigger the bus ride
     function triggerBusRide() external isReadyToRide {
-        uint256 amount = _ticketTotal;
-        _ticketTotal = 0;
+        uint256 amount = _ticketTotalValue;
+        _ticketTotalValue = 0;
         _hasBusLeft = true;
         _destination.transfer(amount);
-        emit BusDeparts(amount);
+        /* emit BusDeparts(amount); */
     }
 
     // If eligible to withdraw, then pull money out
@@ -105,9 +108,9 @@ contract BusStation {
 
         // Write data before transfer to guard against re-entrancy
         _seats[msg.sender] = 0;
-        _ticketTotal -= amount;
+        _ticketTotalValue -= amount;
         payable(msg.sender).transfer(amount);
-        emit Withdrawal(msg.sender, amount);
+        /* emit Withdrawal(msg.sender, amount); */
     }
 
     /* === Modifiers === */
@@ -123,7 +126,7 @@ contract BusStation {
     modifier isReadyToRide() {
         require(_endOfTimelock <= block.timestamp, "Function is timelocked.");
         require(_hasBusLeft == false, "Bus is already gone.");
-        require(_ticketTotal >= _minWeiToLeave, "Not enough wei to leave.");
+        require(_ticketTotalValue >= _minWeiToLeave, "Not enough wei to leave.");
         _;
     }
 }

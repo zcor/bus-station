@@ -20,7 +20,7 @@ def test_withdraw_success(accounts, unlockedBusStation):
     unlockedBusStation.withdraw({"from": accounts[2]})
 
     # assert
-    assert unlockedBusStation._ticketTotal() == 0
+    assert unlockedBusStation._ticketTotalValue() == 0
     assert accounts[1].balance() == startingRiderOneBalance
     assert accounts[2].balance() == startingRiderTwoBalance
 
