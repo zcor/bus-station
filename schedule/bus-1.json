@@ -1,7 +1,7 @@
 {
         'destination': 'TBD - legal team address',
         'deploymentDate': '3/7/2021',
-        'minWeiToLeave': '6351000000000000000',
+        'minWeiToLeave': '6000000000000000000',
         'timelockSeconds': '604800',
         'maxTicketValue': '2000000000000000000'
         'implementation': 'BusStation.sol'
