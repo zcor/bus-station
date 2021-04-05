@@ -11,51 +11,54 @@ def isolate(fn_isolation):
 
 
 @pytest.fixture(scope="module")
-def lockedBusStation(BusStation, accounts):
-    etherInWei = 10 ** 18
-    return BusStation.deploy(
-        accounts[0], etherInWei, 4, 10 ** 20, {"from": accounts[1]}
-    )
+def GrandCentral(BusStation, accounts):
+    return BusStation.deploy({"from": accounts[0]})
 
 
 @pytest.fixture(scope="module")
-def unlockedBusStation(BusStation, accounts, chain):
+def lockedRoute(GrandCentral, accounts):
     etherInWei = 10 ** 18
-    sleep_time = 5 * 60 * 60 * 24
-    chain.sleep(sleep_time)
-    return BusStation.deploy(
-        accounts[0], etherInWei, 0, 10 ** 20, {"from": accounts[1]}
-    )
+    return GrandCentral.deployRoute(
+        accounts[0], 0, 10 ** 20, etherInWei, 5 * 60 * 60 * 24, {"from": accounts[1]}
+    ).return_value
 
 
 @pytest.fixture(scope="module")
-def discountBusStation(BusStation, accounts, chain):
-    etherInWei = 10 ** 18
+def unlockedRoute(GrandCentral, accounts, chain):
+    min_eth_in_wei = 10 ** 18
     sleep_time = 5 * 60 * 60 * 24
+    route_id = GrandCentral.deployRoute(
+        accounts[0], 0, 10 ** 20, min_eth_in_wei, sleep_time, {"from": accounts[1]}
+    ).return_value
     chain.sleep(sleep_time)
-    return BusStation.deploy(
-        accounts[0], etherInWei, 0, 10 ** 10, {"from": accounts[1]}
-    )
+    return route_id
 
 
 @pytest.fixture(scope="module")
-def departedBus(BusStation, accounts, chain):
+def discountRoute(GrandCentral, accounts, chain):
+    min_eth_in_wei = 10 ** 10
+    sleep_time = 5 * 60 * 60 * 24
+    route_id = GrandCentral.deployRoute(
+        accounts[0], 0, 10 ** 10, min_eth_in_wei, sleep_time, {"from": accounts[1]}
+    ).return_value
+    return route_id
+
+
+@pytest.fixture(scope="module")
+def departedBus(GrandCentral, accounts, chain):
     etherInWei = 10 ** 18
     sleep_time = 5 * 60 * 60 * 24
-    chain.sleep(sleep_time)
-    deployed = BusStation.deploy(
-        accounts[0], etherInWei, 0, 10 ** 20, {"from": accounts[1]}
-    )
+    deployed = GrandCentral.deployRoute(
+        accounts[0], 0, 10 ** 20, etherInWei, sleep_time, {"from": accounts[1]}
+    ).return_value
 
     # arrange
     riderOneAmount = 10 ** 18 - 1
     riderTwoAmount = 5
-    startingDestinationBalance = accounts[0].balance()
-    startingRiderOneBalance = accounts[1].balance()
-    startingRiderTwoBalance = accounts[2].balance()
 
     # act
-    deployed.buyBusTicket({"from": accounts[1], "amount": riderOneAmount})
-    deployed.buyBusTicket({"from": accounts[2], "amount": riderTwoAmount})
-    deployed.triggerBusRide()
+    GrandCentral.buyBusTicket(deployed, {"from": accounts[1], "amount": riderOneAmount})
+    GrandCentral.buyBusTicket(deployed, {"from": accounts[2], "amount": riderTwoAmount})
+    chain.sleep(sleep_time)
+    GrandCentral.triggerBusRide(deployed)
     return deployed

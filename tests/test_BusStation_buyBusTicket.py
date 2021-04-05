@@ -3,44 +3,58 @@ from brownie.test import given, strategy
 
 
 @given(amount=strategy("uint", max_value=10 ** 19, min_value=1))
-def test_buy_bus_ticket_success(accounts, unlockedBusStation, amount):
-    tx = unlockedBusStation.buyBusTicket({"from": accounts[3], "amount": amount})
-    assert unlockedBusStation._ticketTotalValue() == amount
-    #assert tx.events["TicketPurchased"][0]["_from"] == accounts[3]
-    #assert tx.events["TicketPurchased"][0]["_value"] == amount
+def test_buy_bus_ticket_success(GrandCentral, unlockedRoute, accounts, amount):
+    GrandCentral.buyBusTicket(
+        unlockedRoute, {"from": accounts[3], "amount": amount}
+    )
+    assert GrandCentral.routeValue(unlockedRoute) == amount
 
 
-@given(amount=strategy("uint", min_value=10 ** 10, max_value=10 ** 18))
-def test_cannot_overpay(accounts, discountBusStation, amount):
+@given(amount=strategy("uint", min_value=10 ** 10 + 1, max_value=10 ** 18))
+def test_cannot_overpay(GrandCentral, discountRoute, accounts, amount):
     with brownie.reverts("Cannot exceed max ticket value."):
-        tx = discountBusStation.buyBusTicket({"from": accounts[3], "amount": amount})
+        GrandCentral.buyBusTicket(
+            discountRoute, {"from": accounts[3], "amount": amount}
+        )
 
 
 @given(amount=strategy("uint", max_value=10 ** 18, min_value=1))
-def test_can_double_ticket(accounts, unlockedBusStation, amount):
-    tx = unlockedBusStation.buyBusTicket({"from": accounts[3], "amount": amount})
-    tx = unlockedBusStation.buyBusTicket({"from": accounts[3], "amount": amount})
-    assert unlockedBusStation._ticketTotalValue() == amount * 2
+def test_can_double_ticket(GrandCentral, unlockedRoute, accounts, amount):
+    GrandCentral.buyBusTicket(
+        unlockedRoute, {"from": accounts[3], "amount": amount}
+    )
+    GrandCentral.buyBusTicket(
+        unlockedRoute, {"from": accounts[3], "amount": amount}
+    )
+    assert GrandCentral.routeValue(unlockedRoute) == amount * 2
 
 
-def test_second_purchase_cannot_overpay(accounts, discountBusStation):
+def test_second_purchase_cannot_overpay(GrandCentral, discountRoute, accounts):
     amount = 10 ** 10 - 100000
-    tx = discountBusStation.buyBusTicket({"from": accounts[3], "amount": amount})
+    GrandCentral.buyBusTicket(
+        discountRoute, {"from": accounts[3], "amount": amount}
+    )
     with brownie.reverts("Cannot exceed max ticket value."):
-        tx = discountBusStation.buyBusTicket({"from": accounts[3], "amount": amount})
+        tx = GrandCentral.buyBusTicket(
+            discountRoute, {"from": accounts[3], "amount": amount}
+        )
 
 
-def test_buy_bus_ticket_no_money_sent(accounts, unlockedBusStation):
+def test_buy_bus_ticket_no_money_sent(GrandCentral, unlockedRoute, accounts):
     with brownie.reverts("Need to pay more for ticket."):
-        unlockedBusStation.buyBusTicket({"from": accounts[3], "amount": 0})
+        GrandCentral.buyBusTicket(unlockedRoute, {"from": accounts[3], "amount": 0})
 
 
-def test_buy_bus_ticket_bus_already_left(accounts, unlockedBusStation):
+def test_buy_bus_ticket_bus_already_left(GrandCentral, unlockedRoute, accounts):
     riderOneAmount = 10 ** 18 - 1
     riderTwoAmount = 5
-    unlockedBusStation.buyBusTicket({"from": accounts[1], "amount": riderOneAmount})
-    unlockedBusStation.buyBusTicket({"from": accounts[2], "amount": riderTwoAmount})
-    unlockedBusStation.triggerBusRide()
+    GrandCentral.buyBusTicket(
+        unlockedRoute, {"from": accounts[1], "amount": riderOneAmount}
+    )
+    GrandCentral.buyBusTicket(
+        unlockedRoute, {"from": accounts[2], "amount": riderTwoAmount}
+    )
+    GrandCentral.triggerBusRide(unlockedRoute)
 
     with brownie.reverts("The bus already left."):
-        unlockedBusStation.buyBusTicket({"from": accounts[3], "amount": 0})
+        GrandCentral.buyBusTicket(unlockedRoute, {"from": accounts[3], "amount": 1})
