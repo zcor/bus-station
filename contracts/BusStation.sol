@@ -50,7 +50,7 @@ contract BusStation {
         bool _hasBusLeft;
     }
 
-    uint256 public _routeId; // Current Bus Route Counter
+    uint256 public _routeId; // Current Bus Route Counter, initializes at 0 and increments every time someone uses it
 
     /* ==== Functions ===== */
     // Create a bus route
